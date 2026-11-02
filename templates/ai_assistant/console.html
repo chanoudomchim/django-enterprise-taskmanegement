@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}AI Project Assistant | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-stars text-primary me-2"></i>AI Project Assistant</h2>
+        <p class="text-muted mb-0">Generate tasks, project breakdowns, progress summaries, and risk assessments for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div>
+        <span class="badge bg-light text-dark border p-2">
+            Engine: <strong>{{ config.get_provider_display }}</strong> ({{ config.model_name }})
+        </span>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <!-- Query / Generation Card -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="fw-bold mb-0">New AI Generation Request</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="{% url 'ai_generate' %}">
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">AI Capability</label>
+                            {{ form.feature }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Target Project</label>
+                            {{ form.project }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Prompt / Project Scope Description</label>
+                        {{ form.prompt }}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
+                            <i class="bi bi-stars me-1"></i> Generate with AI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Capability Cards -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-1"><i class="bi bi-list-check text-primary me-2"></i>Task Breakdown</h6>
+                        <p class="text-muted small mb-0">Turns project requirements into estimated, prioritized tasks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-1"><i class="bi bi-shield-exclamation text-warning me-2"></i>Risk Assessment</h6>
+                        <p class="text-muted small mb-0">Detects bottlenecks, deadline slippages, and resource conflicts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request History -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h6 class="fw-bold mb-0">Recent AI Requests</h6>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for req in recent_requests %}
+                    <a href="{% url 'ai_request_detail' req.id %}" class="list-group-item list-group-item-action p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-light text-primary border small text-uppercase">{{ req.get_feature_display }}</span>
+                            <span class="text-muted small">{{ req.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="mb-1 text-truncate text-body fw-semibold small">{{ req.prompt }}</p>
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                            <span>{{ req.tokens_used }} tokens</span>
+                            {% if req.applied %}
+                                <span class="badge bg-success-subtle text-success">Applied</span>
+                            {% elif req.status == 'completed' %}
+                                <span class="badge bg-light text-secondary border">Ready</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ req.status }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-stars fs-1 d-block mb-2 text-secondary"></i>
+                        No AI requests generated yet.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Notifications</h2>
+        <p class="text-muted mb-0">Alerts, mentions, and updates across <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'notification_preferences' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-gear me-1"></i> Preferences
+        </a>
+        {% if unread_count > 0 %}
+            <form method="post" action="{% url 'notification_mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'all' %}active fw-bold{% endif %}" href="{% url 'notification_list' %}?status=all">
+            All Notifications
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'unread' %}active fw-bold{% endif %}" href="{% url 'notification_list' %}?status=unread">
+            Unread <span class="badge bg-primary ms-1">{{ unread_count }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'read' %}active fw-bold{% endif %}" href="{% url 'notification_list' %}?status=read">
+            Read Archive
+        </a>
+    </li>
+</ul>
+
+<!-- Notifications List -->
+<div class="card shadow-sm border-0">
+    <div class="list-group list-group-flush">
+        {% for n in notifications %}
+            <div class="list-group-item p-3 d-flex justify-content-between align-items-center gap-3 {% if not n.is_read %}bg-primary-subtle bg-opacity-10 border-start border-4 border-primary{% endif %}">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="badge rounded-circle p-2 mt-1 
+                        {% if n.notification_type == 'task_due_reminder' %}bg-danger-subtle text-danger
+                        {% elif n.notification_type == 'approval_requested' or n.notification_type == 'approval_decided' %}bg-warning-subtle text-dark
+                        {% elif n.notification_type == 'comment_mention' %}bg-info-subtle text-info
+                        {% else %}bg-primary-subtle text-primary{% endif %}">
+                        {% if n.notification_type == 'task_due_reminder' %}<i class="bi bi-alarm"></i>
+                        {% elif n.notification_type == 'comment_mention' %}<i class="bi bi-chat-quote"></i>
+                        {% elif 'approval' in n.notification_type %}<i class="bi bi-patch-check"></i>
+                        {% else %}<i class="bi bi-bell"></i>{% endif %}
+                    </span>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-light text-dark border small text-uppercase">{{ n.get_notification_type_display }}</span>
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ n.created_at|timesince }} ago</span>
+                        </div>
+                        <h6 class="mb-1 fw-bold">
+                            {% if n.target_url %}
+                                <a href="{{ n.target_url }}" class="text-decoration-none text-body">{{ n.title }}</a>
+                            {% else %}
+                                {{ n.title }}
+                            {% endif %}
+                        </h6>
+                        <p class="mb-0 text-secondary small">{{ n.body }}</p>
+                    </div>
+                </div>
+
+                <div>
+                    {% if not n.is_read %}
+                        <form method="post" action="{% url 'notification_mark_read' n.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2 small" title="Mark as read">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="badge bg-light text-muted small"><i class="bi bi-check2"></i> Read</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-bell-slash fs-1 d-block mb-2 text-secondary"></i>
+                No notifications found.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

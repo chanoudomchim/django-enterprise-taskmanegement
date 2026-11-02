@@ -1,0 +1,2 @@
+"""Management package test suite."""
+

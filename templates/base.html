@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WorkFlow Enterprise{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-body-tertiary" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{% url 'home' %}">
+                <i class="bi bi-kanban text-primary"></i>
+                <span>WorkFlow <span class="badge bg-primary fs-7">Enterprise</span></span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="topNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}"><i class="bi bi-speedometer2 me-1"></i> Overview</a>
+                    </li>
+                    {% if user.is_authenticated and current_organization %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'project_list' %}"><i class="bi bi-folder me-1"></i> Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'task_list' %}"><i class="bi bi-check2-square me-1"></i> Tasks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'team_list' %}"><i class="bi bi-people me-1"></i> Teams</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'department_list' %}"><i class="bi bi-diagram-3 me-1"></i> Departments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'employee_directory' %}"><i class="bi bi-person-lines-fill me-1"></i> Directory</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'time_dashboard' %}"><i class="bi bi-clock-history me-1"></i> Time</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'approval_request_list' %}"><i class="bi bi-patch-check me-1"></i> Approvals</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'activity_feed' %}"><i class="bi bi-activity me-1"></i> Activity</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" href="{% url 'ai_console' %}"><i class="bi bi-stars me-1"></i> AI Assistant</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'reports_dashboard' %}"><i class="bi bi-graph-up me-1"></i> Reports</a>
+                        </li>
+                        <!-- Tenant Switcher Dropdown -->
+                        <li class="nav-item dropdown ms-lg-2">
+                            <button class="btn btn-dark btn-sm border border-secondary-subtle dropdown-toggle d-flex align-items-center gap-2 py-1 px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="rounded-circle d-inline-block" style="width: 10px; height: 10px; background-color: {{ current_organization.primary_color|default:'#0d6efd' }};"></span>
+                                <span class="fw-semibold">{{ current_organization.name }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark shadow">
+                                <li class="dropdown-header small text-uppercase">Switch Workspace</li>
+                                {% for org in user_organizations %}
+                                    <li>
+                                        <form action="{% url 'org_switch' org.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-2 {% if org.id == current_organization.id %}active{% endif %}">
+                                                <span>{{ org.name }}</span>
+                                                {% if org.id == current_organization.id %}<i class="bi bi-check-lg"></i>{% endif %}
+                                            </button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'org_members' %}"><i class="bi bi-people me-2"></i> Members</a></li>
+                                {% if user_membership.role in 'owner,admin' %}
+                                    <li><a class="dropdown-item" href="{% url 'org_settings' %}"><i class="bi bi-gear me-2"></i> Workspace Settings</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'org_create' %}"><i class="bi bi-plus-circle me-2"></i> New Organization</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notification Bell -->
+                    {% if user.is_authenticated and current_organization %}
+                        <a href="{% url 'notification_list' %}" class="btn btn-outline-light btn-sm rounded-circle p-2 position-relative" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            {% if unread_notifications_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
+                                    {{ unread_notifications_count }}
+                                    <span class="visually-hidden">unread notifications</span>
+                                </span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+
+                    <!-- Theme Switcher -->
+                    <button class="btn btn-outline-light btn-sm rounded-circle p-2" id="themeToggleBtn" type="button" title="Toggle theme" onclick="toggleTheme()">
+                        <i class="bi bi-moon-stars" id="themeIcon"></i>
+                    </button>
+
+                    {% if user.is_authenticated %}
+                        <!-- User Profile Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-dark btn-sm dropdown-toggle d-flex align-items-center gap-2 p-1 pe-2 rounded-pill border border-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="User Avatar" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center small fw-bold" style="width: 28px; height: 28px;">
+                                        {{ user.first_name|first|default:user.email|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="small fw-semibold d-none d-sm-inline">{{ user.short_name }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow">
+                                <li class="px-3 py-2 border-bottom">
+                                    <div class="fw-bold small">{{ user.full_name }}</div>
+                                    <div class="text-muted small text-truncate" style="max-width: 200px;">{{ user.email }}</div>
+                                </li>
+                                <li><a class="dropdown-item py-2" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i> Profile</a></li>
+                                <li><a class="dropdown-item py-2" href="{% url 'password_change' %}"><i class="bi bi-key me-2"></i> Change Password</a></li>
+                                <li><a class="dropdown-item py-2" href="{% url 'org_list' %}"><i class="bi bi-buildings me-2"></i> My Organizations</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger py-2">
+                                            <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Sign In</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="py-4">
+        <div class="container-fluid px-4">
+            <!-- Toast / Alert Messages -->
+            {% if messages %}
+                <div class="messages-container mb-3">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-body border-top text-center text-muted small">
+        <div class="container">
+            <span>WorkFlow Enterprise &copy; 2026. Running on Python 3.12, Django 5.2 LTS, PostgreSQL 16 & Redis 7.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Custom Theme & App JS -->
+    <script>
+        function getStoredTheme() {
+            return localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('theme', theme);
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            setTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTheme(getStoredTheme());
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

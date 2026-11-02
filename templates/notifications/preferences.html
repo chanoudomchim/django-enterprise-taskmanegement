@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Notification Preferences | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a href="{% url 'notification_list' %}" class="text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left me-1"></i> Back to Notifications
+            </a>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0"><i class="bi bi-sliders me-2 text-primary"></i>Notification Channels & Preferences</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <h6 class="fw-bold text-uppercase small text-secondary mb-3">Delivery Channels</h6>
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.in_app_notifications }}
+                            <label class="form-check-label fw-semibold" for="{{ form.in_app_notifications.id_for_label }}">
+                                In-App Notifications
+                            </label>
+                            <div class="form-text small">Receive notifications within the workspace top bar and feed.</div>
+                        </div>
+
+                        <div class="form-check form-switch">
+                            {{ form.email_notifications }}
+                            <label class="form-check-label fw-semibold" for="{{ form.email_notifications.id_for_label }}">
+                                Email Notifications
+                            </label>
+                            <div class="form-text small">Send notification alerts to {{ user.email }}.</div>
+                        </div>
+
+                        <div class="form-check form-switch">
+                            {{ form.telegram_notifications }}
+                            <label class="form-check-label fw-semibold" for="{{ form.telegram_notifications.id_for_label }}">
+                                Telegram Bot Notifications
+                            </label>
+                            <div class="form-text small">Dispatch alerts directly to your linked Telegram account.</div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-uppercase small text-secondary mb-3">Event Subscriptions</h6>
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="form-check">
+                            {{ form.notify_on_task_assigned }}
+                            <label class="form-check-label" for="{{ form.notify_on_task_assigned.id_for_label }}">
+                                When a task is assigned to me
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.notify_on_comment_mention }}
+                            <label class="form-check-label" for="{{ form.notify_on_comment_mention.id_for_label }}">
+                                When I am @mentioned in a comment
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.notify_on_due_date }}
+                            <label class="form-check-label" for="{{ form.notify_on_due_date.id_for_label }}">
+                                Deadline and due date reminders
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.notify_on_approvals }}
+                            <label class="form-check-label" for="{{ form.notify_on_approvals.id_for_label }}">
+                                Approval requests and decision status changes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            {{ form.daily_summary_enabled }}
+                            <label class="form-check-label" for="{{ form.daily_summary_enabled.id_for_label }}">
+                                Daily morning open tasks summary digest
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary fw-semibold px-4">Save Preferences</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Telegram Account Linking Card -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0"><i class="bi bi-telegram me-2 text-primary"></i>Telegram Account Connection</h6>
+                {% if telegram_account.is_verified %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Connected</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Not Linked</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                {% if telegram_account.is_verified %}
+                    <div class="alert alert-success border-0 mb-0">
+                        <h6 class="fw-bold mb-1">Telegram Connected</h6>
+                        <p class="mb-0 small">
+                            Your workspace account is linked to Telegram Chat ID <code>{{ telegram_account.telegram_chat_id }}</code>.
+                            You can query your tasks anytime with <code>/mytasks</code>, <code>/today</code>, or <code>/overdue</code>.
+                        </p>
+                    </div>
+                {% else %}
+                    <p class="text-secondary small mb-3">
+                        Connect your Telegram account to receive instant push alerts and manage tasks on mobile.
+                    </p>
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <span class="text-muted small d-block mb-1">To connect, send the following message to the bot:</span>
+                        <code class="fs-6 fw-bold user-select-all">/start {{ telegram_account.verification_code }}</code>
+                    </div>
+                    {% if telegram_bot and telegram_bot.is_enabled %}
+                        <span class="text-muted small">
+                            Bot: <strong>@{{ telegram_bot.bot_name }}</strong>
+                        </span>
+                    {% else %}
+                        <span class="text-muted small">
+                            (Telegram bot integration is currently being initialized by your workspace administrator).
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

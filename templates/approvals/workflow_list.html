@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Approval Workflows | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Approval Workflows</h2>
+        <p class="text-muted mb-0">Configured multi-step approval templates for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'approval_request_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Approvals
+        </a>
+        <a href="{% url 'approval_workflow_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Workflow
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Workflow Name</th>
+                    <th>Scope</th>
+                    <th>Stages Count</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wf in workflows %}
+                    <tr>
+                        <td class="fw-semibold">{{ wf.name }}</td>
+                        <td>
+                            {% if wf.project %}
+                                <span class="badge bg-light text-dark font-monospace">Project: {{ wf.project.key }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary">Organization-wide</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary">{{ wf.stages.count }} Stages</span>
+                        </td>
+                        <td>
+                            {% if wf.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ wf.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-diagram-3 fs-1 d-block mb-2 text-secondary"></i>
+                            No approval workflows configured yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

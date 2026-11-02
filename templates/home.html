@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | WorkFlow Enterprise{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="p-4 p-md-5 bg-body rounded-4 shadow-sm border position-relative overflow-hidden">
+                <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                    <i class="bi bi-kanban" style="font-size: 8rem;"></i>
+                </div>
+                <div class="position-relative">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <span class="badge px-3 py-2 text-white" style="background-color: {{ current_organization.primary_color|default:'#0d6efd' }}; font-size: 0.9rem;">
+                            {{ current_organization.name }}
+                        </span>
+                        <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ user_membership.role }}</span>
+                    </div>
+                    <h1 class="display-6 fw-bold mb-2">Hello, {{ user.full_name }}!</h1>
+                    <p class="text-secondary col-md-8 mb-4">
+                        Welcome to your workspace. All projects, tasks, departments, and activities are securely isolated within <strong>{{ current_organization.name }}</strong>.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'org_members' %}" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-people me-1"></i> Workspace Members
+                        </a>
+                        {% if user_membership.role in 'owner,admin' %}
+                            <a href="{% url 'org_settings' %}" class="btn btn-outline-secondary btn-sm px-3">
+                                <i class="bi bi-gear me-1"></i> Settings
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'org_create' %}" class="btn btn-light btn-sm px-3">
+                            <i class="bi bi-plus-lg me-1"></i> New Workspace
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="p-5 mb-4 bg-body rounded-4 shadow-sm border text-center py-5">
+                <span class="p-4 bg-primary-subtle text-primary rounded-circle d-inline-flex fs-1 mb-3">
+                    <i class="bi bi-kanban"></i>
+                </span>
+                <h1 class="display-5 fw-bold mb-3">WorkFlow Enterprise</h1>
+                <p class="col-md-8 mx-auto fs-5 text-secondary mb-4">
+                    Enterprise Work Management and Multi-Tenant SaaS platform. Organize projects, track time, automate approvals, and collaborate securely across organizations.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-rocket-takeoff me-1"></i> Create Workspace
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title fw-bold mb-0">Multi-Tenancy</h5>
+                    <i class="bi bi-shield-check text-primary fs-3"></i>
+                </div>
+                <p class="card-text text-secondary small">
+                    Shared-database, shared-schema architecture with five-layer tenant isolation across QuerySets, Views, APIs, Services, and Storage.
+                </p>
+                <div class="badge bg-primary-subtle text-primary">TenantModel Active</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title fw-bold mb-0">Identity & Sessions</h5>
+                    <i class="bi bi-person-badge text-success fs-3"></i>
+                </div>
+                <p class="card-text text-secondary small">
+                    Custom User model using UUID primary keys, email authentication, user profiles, session tracking, and invitation tokens.
+                </p>
+                <div class="badge bg-success-subtle text-success">Phase 2 Active</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title fw-bold mb-0">Stack Infrastructure</h5>
+                    <i class="bi bi-cpu text-info fs-3"></i>
+                </div>
+                <p class="card-text text-secondary small">
+                    PostgreSQL 16, Redis 7 caching, direct Gunicorn port 8000. Zero Celery, zero Nginx containers.
+                </p>
+                <div class="badge bg-info-subtle text-info">3 Core Services Healthy</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.name }} Settings | WorkFlow Enterprise{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Organization Settings</h2>
+        <p class="text-muted mb-0">Manage workspace branding, feature toggles, and preferences for <strong>{{ organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'org_members' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-people me-1"></i> Manage Members
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-body py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">General & Branding</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-8">
+                            <label class="form-label small fw-semibold">Organization Name</label>
+                            {{ org_form.name }}
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label small fw-semibold">Brand Color</label>
+                            {{ org_form.primary_color }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Workspace Logo</label>
+                        {{ org_form.logo }}
+                        {% if organization.logo %}
+                            <div class="mt-2">
+                                <img src="{{ organization.logo.url }}" alt="Logo" class="rounded border p-1" style="height: 50px;">
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <h6 class="fw-bold text-secondary mb-3 pt-3 border-top">Feature Configuration</h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label small fw-semibold">Default Member Role</label>
+                            {{ form.default_role }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small fw-semibold">Timezone</label>
+                            {{ form.timezone }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Default Language</label>
+                        {{ form.default_language }}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.allow_member_invites }}
+                        <label class="form-check-label small" for="{{ form.allow_member_invites.id_for_label }}">
+                            Allow regular members to invite new colleagues
+                        </label>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.time_tracking_enabled }}
+                        <label class="form-check-label small" for="{{ form.time_tracking_enabled.id_for_label }}">
+                            Enable Time Tracking module
+                        </label>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.ai_assistant_enabled }}
+                        <label class="form-check-label small" for="{{ form.ai_assistant_enabled.id_for_label }}">
+                            Enable AI Assistant module
+                        </label>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        {{ form.telegram_notifications_enabled }}
+                        <label class="form-check-label small" for="{{ form.telegram_notifications_enabled.id_for_label }}">
+                            Enable Telegram Bot notifications
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary fw-semibold">
+                        <i class="bi bi-check2 me-1"></i> Save Workspace Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3">Workspace Information</h6>
+                <div class="small mb-2 text-muted">ID: <code class="text-secondary">{{ organization.id }}</code></div>
+                <div class="small mb-2 text-muted">Slug: <span class="badge bg-light text-dark">{{ organization.slug }}</span></div>
+                <div class="small mb-2 text-muted">Created: {{ organization.created_at|date:"M d, Y" }}</div>
+                <div class="small mb-0 text-muted">Status: <span class="badge bg-success-subtle text-success text-uppercase">{{ organization.status }}</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

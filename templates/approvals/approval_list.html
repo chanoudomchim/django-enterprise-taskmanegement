@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Approvals | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Approval Center</h2>
+        <p class="text-muted mb-0">Multi-stage approval requests and audit decisions for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'approval_workflow_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-diagram-3 me-1"></i> Workflows
+        </a>
+        <a href="{% url 'approval_request_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Approval Request
+        </a>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if current_tab == 'pending' %}active fw-bold{% endif %}" href="{% url 'approval_request_list' %}?tab=pending">
+            Pending Action <span class="badge bg-warning text-dark ms-1">{{ pending_count }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_tab == 'my' %}active fw-bold{% endif %}" href="{% url 'approval_request_list' %}?tab=my">
+            My Requests <span class="badge bg-secondary ms-1">{{ my_count }}</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_tab == 'all' %}active fw-bold{% endif %}" href="{% url 'approval_request_list' %}?tab=all">
+            All Organization Requests <span class="badge bg-light text-dark border ms-1">{{ all_count }}</span>
+        </a>
+    </li>
+</ul>
+
+<!-- Requests List -->
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Workflow</th>
+                    <th>Current Stage</th>
+                    <th>Status</th>
+                    <th>Requester</th>
+                    <th>Linked Item</th>
+                    <th>Submitted</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'approval_request_detail' req.id %}" class="text-decoration-none fw-semibold text-body">
+                                {{ req.title }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ req.workflow.name }}</span>
+                        </td>
+                        <td>
+                            {% if req.current_stage %}
+                                <span class="badge bg-primary-subtle text-primary">
+                                    Step {{ req.current_stage.step_number }}: {{ req.current_stage.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if req.status == 'approved' %}bg-success
+                                {% elif req.status == 'rejected' %}bg-danger
+                                {% elif req.status == 'cancelled' %}bg-secondary
+                                {% else %}bg-warning text-dark{% endif %} text-uppercase small">
+                                {{ req.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="small">{{ req.requester.get_full_name|default:req.requester.email }}</span>
+                        </td>
+                        <td>
+                            {% if req.task %}
+                                <a href="{% url 'task_detail' req.task.task_key %}" class="badge bg-light text-primary border text-decoration-none font-monospace">
+                                    {{ req.task.task_key }}
+                                </a>
+                            {% elif req.project %}
+                                <a href="{% url 'project_detail' req.project.key %}" class="badge bg-light text-dark border text-decoration-none font-monospace">
+                                    {{ req.project.key }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ req.created_at|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'approval_request_detail' req.id %}" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-patch-check fs-1 d-block mb-2 text-secondary"></i>
+                            No approval requests found for this filter.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,35 @@
+<!-- Reports Navigation Tabs -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-2">
+        <ul class="nav nav-pills flex-nowrap overflow-auto small">
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'overview' %}active{% endif %}" href="{% url 'reports_dashboard' %}">
+                    <i class="bi bi-graph-up me-1"></i> Executive Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'departments' %}active{% endif %}" href="{% url 'reports_departments' %}">
+                    <i class="bi bi-diagram-3 me-1"></i> Departments & Teams
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'projects' %}active{% endif %}" href="{% url 'reports_projects' %}">
+                    <i class="bi bi-folder-check me-1"></i> Project Delivery
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'workload' %}active{% endif %}" href="{% url 'reports_workload' %}">
+                    <i class="bi bi-people me-1"></i> Team Workload
+                </a>
+            </li>
+            {% if user_membership.role in 'owner,admin' %}
+                <li class="nav-item">
+                    <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'audit' %}active{% endif %}" href="{% url 'audit_logs' %}">
+                        <i class="bi bi-shield-lock me-1"></i> Audit Trail
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+

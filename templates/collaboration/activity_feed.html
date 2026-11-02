@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Feed | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Activity Feed</h2>
+        <p class="text-muted mb-0">Real-time collaboration and modification timeline for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="timeline">
+                    {% for act in activities %}
+                        <div class="d-flex gap-3 pb-4 border-bottom mb-4">
+                            <div>
+                                <span class="badge rounded-circle p-2 
+                                    {% if act.action == 'approved' %}bg-success-subtle text-success
+                                    {% elif act.action == 'rejected' %}bg-danger-subtle text-danger
+                                    {% elif act.action == 'created' %}bg-primary-subtle text-primary
+                                    {% elif act.action == 'commented' %}bg-info-subtle text-info
+                                    {% elif act.action == 'attachment_added' %}bg-warning-subtle text-warning
+                                    {% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                    {% if act.action == 'approved' %}<i class="bi bi-check-lg fs-5"></i>
+                                    {% elif act.action == 'rejected' %}<i class="bi bi-x-lg fs-5"></i>
+                                    {% elif act.action == 'created' %}<i class="bi bi-plus-lg fs-5"></i>
+                                    {% elif act.action == 'commented' %}<i class="bi bi-chat-text fs-5"></i>
+                                    {% elif act.action == 'attachment_added' %}<i class="bi bi-paperclip fs-5"></i>
+                                    {% else %}<i class="bi bi-activity fs-5"></i>{% endif %}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-body">
+                                        {{ act.actor.get_full_name|default:act.actor.email }}
+                                    </span>
+                                    <span class="text-muted small">
+                                        <i class="bi bi-clock me-1"></i>{{ act.created_at|timesince }} ago
+                                    </span>
+                                </div>
+                                <p class="mb-1 text-secondary">{{ act.description }}</p>
+                                <div class="d-flex gap-2">
+                                    {% if act.task %}
+                                        <a href="{% url 'task_detail' act.task.task_key %}" class="badge bg-light text-primary border text-decoration-none">
+                                            <i class="bi bi-check2-square me-1"></i>{{ act.task.task_key }}
+                                        </a>
+                                    {% endif %}
+                                    {% if act.project %}
+                                        <a href="{% url 'project_detail' act.project.key %}" class="badge bg-light text-dark border text-decoration-none">
+                                            <i class="bi bi-folder me-1"></i>{{ act.project.key }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-clock-history fs-1 d-block mb-2 text-secondary"></i>
+                            No activities recorded yet in this workspace.
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

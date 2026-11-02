@@ -1,0 +1,63 @@
+<!-- Sub-navigation for the 11 Specialized Task Views -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-2">
+        <ul class="nav nav-pills flex-nowrap overflow-auto small">
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'kanban' %}active{% endif %}" href="{% url 'task_kanban' %}">
+                    <i class="bi bi-kanban me-1"></i> Kanban Board
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'list' %}active{% endif %}" href="{% url 'task_list' %}">
+                    <i class="bi bi-list-task me-1"></i> Full List
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'calendar' %}active{% endif %}" href="{% url 'task_calendar' %}">
+                    <i class="bi bi-calendar3 me-1"></i> Calendar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'gantt' %}active{% endif %}" href="{% url 'task_gantt' %}">
+                    <i class="bi bi-bar-chart-steps me-1"></i> Gantt Timeline
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'my_tasks' %}active{% endif %}" href="{% url 'my_tasks' %}">
+                    <i class="bi bi-person-check me-1"></i> My Tasks
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'assigned_by_me' %}active{% endif %}" href="{% url 'assigned_by_me' %}">
+                    <i class="bi bi-send me-1"></i> Assigned by Me
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'watching' %}active{% endif %}" href="{% url 'watching_tasks' %}">
+                    <i class="bi bi-eye me-1"></i> Watching
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'due_today' %}active{% endif %}" href="{% url 'due_today_tasks' %}">
+                    <i class="bi bi-clock me-1"></i> Due Today
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'upcoming' %}active{% endif %}" href="{% url 'upcoming_tasks' %}">
+                    <i class="bi bi-calendar-event me-1"></i> Upcoming (7d)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'overdue' %}active text-white bg-danger{% elif not active_tab == 'overdue' %}text-danger{% endif %}" href="{% url 'overdue_tasks' %}">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Overdue
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-1 px-3 text-nowrap {% if active_tab == 'recently_updated' %}active{% endif %}" href="{% url 'recently_updated_tasks' %}">
+                    <i class="bi bi-clock-history me-1"></i> Recently Updated
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+

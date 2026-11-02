@@ -1,0 +1,17 @@
+# WorkFlow Enterprise - Base Dependencies
+Django>=5.2,<6.0
+djangorestframework>=3.15.0
+django-filter>=24.0
+psycopg[binary]>=3.2.0
+redis>=5.0.0
+django-redis>=5.4.0
+gunicorn>=22.0.0
+whitenoise[brotli]>=6.7.0
+python-dotenv>=1.0.1
+Pillow>=10.3.0
+cryptography>=42.0.0
+requests>=2.31.0
+openpyxl>=3.1.2
+reportlab>=4.1.0
+faker>=25.0.0
+

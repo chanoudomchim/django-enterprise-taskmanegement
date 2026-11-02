@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Timesheets | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Timesheets</h2>
+        <p class="text-muted mb-0">Weekly and monthly aggregated work logs and approvals for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'time_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-clock-history me-1"></i> Time Tracking
+        </a>
+        <form method="post" action="{% url 'timesheet_generate' %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="period_type" value="weekly">
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="bi bi-calendar-plus me-1"></i> Generate Weekly Timesheet
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if current_tab == 'my' %}active fw-bold{% endif %}" href="{% url 'timesheet_list' %}?tab=my">
+            My Timesheets <span class="badge bg-secondary ms-1">{{ my_count }}</span>
+        </a>
+    </li>
+    {% if is_manager %}
+        <li class="nav-item">
+            <a class="nav-link {% if current_tab == 'review' %}active fw-bold{% endif %}" href="{% url 'timesheet_list' %}?tab=review">
+                Manager Review Queue <span class="badge bg-warning text-dark ms-1">{{ review_count }}</span>
+            </a>
+        </li>
+    {% endif %}
+</ul>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Period</th>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>Total Hours</th>
+                    <th>Billable Hours</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ts in timesheets %}
+                    <tr>
+                        <td class="fw-semibold">
+                            <a href="{% url 'timesheet_detail' ts.id %}" class="text-decoration-none text-body">
+                                {{ ts.start_date|date:"M d" }} - {{ ts.end_date|date:"M d, Y" }}
+                            </a>
+                        </td>
+                        <td>{{ ts.user.get_full_name|default:ts.user.email }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border text-capitalize">{{ ts.period_type }}</span>
+                        </td>
+                        <td class="fw-bold font-monospace">{{ ts.total_hours }}h</td>
+                        <td class="font-monospace text-success">{{ ts.billable_hours }}h</td>
+                        <td>
+                            <span class="badge 
+                                {% if ts.status == 'approved' %}bg-success
+                                {% elif ts.status == 'rejected' %}bg-danger
+                                {% elif ts.status == 'submitted' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %} text-uppercase small">
+                                {{ ts.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'timesheet_detail' ts.id %}" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar2-range fs-1 d-block mb-2 text-secondary"></i>
+                            No timesheets found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

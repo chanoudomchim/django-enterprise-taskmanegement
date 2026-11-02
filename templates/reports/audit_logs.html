@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Trail | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Security Audit Trail</h2>
+        <p class="text-muted mb-0">Immutable record of data changes, access, and security operations in <strong>{{ current_organization.name }}</strong></p>
+    </div>
+</div>
+
+{% include "reports/partials/reports_nav.html" %}
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Target Model</th>
+                    <th>Description</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td class="small text-muted">{{ log.created_at|date:"M d, Y H:i:s" }}</td>
+                        <td class="small fw-semibold">{{ log.user.email|default:"System / Automated" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if log.action == 'create' %}bg-success
+                                {% elif log.action == 'delete' %}bg-danger
+                                {% elif log.action == 'export' %}bg-warning text-dark
+                                {% elif log.action == 'update' %}bg-primary
+                                {% else %}bg-secondary{% endif %} text-uppercase small">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td class="small font-monospace">{{ log.model_name }}</td>
+                        <td class="small text-secondary">{{ log.object_repr }}</td>
+                        <td class="small font-monospace text-muted">{{ log.ip_address|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">No audit events recorded yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

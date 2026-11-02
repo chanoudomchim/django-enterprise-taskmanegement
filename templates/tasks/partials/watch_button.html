@@ -1,0 +1,13 @@
+<form method="post" action="{% url 'task_watch_toggle' task.task_key %}" hx-post="{% url 'task_watch_toggle' task.task_key %}" hx-swap="outerHTML">
+    {% csrf_token %}
+    {% if is_watching %}
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-eye-slash me-1"></i> Stop Watching
+        </button>
+    {% else %}
+        <button type="submit" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-eye me-1"></i> Watch Task
+        </button>
+    {% endif %}
+</form>
+

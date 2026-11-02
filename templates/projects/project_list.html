@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Projects | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Projects</h2>
+        <p class="text-muted mb-0">Active initiatives and milestones in <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="btn-group">
+            <a href="{% url 'project_list' %}" class="btn btn-outline-secondary btn-sm {% if not current_status %}active{% endif %}">All</a>
+            <a href="{% url 'project_list' %}?status=active" class="btn btn-outline-secondary btn-sm {% if current_status == 'active' %}active{% endif %}">Active</a>
+            <a href="{% url 'project_list' %}?status=planning" class="btn btn-outline-secondary btn-sm {% if current_status == 'planning' %}active{% endif %}">Planning</a>
+            <a href="{% url 'project_list' %}?status=completed" class="btn btn-outline-secondary btn-sm {% if current_status == 'completed' %}active{% endif %}">Completed</a>
+        </div>
+        <a href="{% url 'project_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Project
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for project in projects %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary-subtle text-primary fw-bold font-monospace">{{ project.key }}</span>
+                        <span class="badge 
+                            {% if project.status == 'active' %}bg-success-subtle text-success
+                            {% elif project.status == 'planning' %}bg-info-subtle text-info
+                            {% elif project.status == 'completed' %}bg-primary-subtle text-primary
+                            {% elif project.status == 'on_hold' %}bg-warning-subtle text-warning
+                            {% else %}bg-secondary-subtle text-secondary{% endif %} text-uppercase">
+                            {{ project.get_status_display }}
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">
+                        <a href="{% url 'project_detail' project.key %}" class="text-decoration-none text-body">
+                            {{ project.name }}
+                        </a>
+                    </h5>
+                    <p class="text-secondary small flex-grow-1 mb-3">
+                        {{ project.description|truncatechars:120|default:"No description provided." }}
+                    </p>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Progress</span>
+                            <span class="fw-bold">{{ project.progress_percentage }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ project.progress_percentage }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-top d-flex align-items-center justify-content-between small text-muted">
+                        <div>
+                            <i class="bi bi-list-task me-1"></i> {{ project.tasks.count }} Tasks
+                        </div>
+                        <div>
+                            <i class="bi bi-person me-1"></i> {{ project.manager.short_name|default:"Unassigned" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-folder-plus fs-1 text-muted mb-3 d-block"></i>
+            <h5>No projects found</h5>
+            <p class="text-muted">Create your first project to start tracking milestones and tasks.</p>
+            <a href="{% url 'project_create' %}" class="btn btn-primary">Create Project</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

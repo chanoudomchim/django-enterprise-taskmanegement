@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Kanban Board | {{ current_organization.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Kanban Board</h2>
+        <p class="text-muted mb-0">Visualize work progression across columns for <strong>{{ current_organization.name }}</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'task_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Task
+        </a>
+    </div>
+</div>
+
+{% include "tasks/partials/task_nav.html" %}
+
+<!-- Filter by Project -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-sm-4">
+                <select name="project" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Projects</option>
+                    {% for proj in projects %}
+                        <option value="{{ proj.key }}" {% if current_project == proj.key %}selected{% endif %}>
+                            [{{ proj.key }}] {{ proj.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if current_project %}
+                <div class="col-sm-2">
+                    <a href="{% url 'task_kanban' %}" class="btn btn-outline-secondary btn-sm">Clear Filter</a>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Kanban Columns Container -->
+<div class="kanban-board-container overflow-auto pb-4">
+    <div class="d-flex gap-3" style="min-width: 1200px;">
+        {% for col_key, col in columns.items %}
+            <div class="kanban-column flex-fill bg-body-tertiary rounded p-3 border" style="min-width: 280px; max-width: 350px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-uppercase small mb-0 text-secondary">
+                        <span class="badge 
+                            {% if col_key == 'completed' %}bg-success
+                            {% elif col_key == 'in_progress' %}bg-primary
+                            {% elif col_key == 'blocked' %}bg-danger
+                            {% elif col_key == 'in_review' %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %} me-1">
+                            {{ col.tasks|length }}
+                        </span>
+                        {{ col.label }}
+                    </h6>
+                </div>
+
+                <div class="kanban-tasks-list">
+                    {% for task in col.tasks %}
+                        {% include "tasks/partials/kanban_card.html" with task=task %}
+                    {% empty %}
+                        <div class="text-center py-4 border border-dashed rounded text-muted small bg-light">
+                            No tasks
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

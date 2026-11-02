@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Create Organization | WorkFlow Enterprise{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <span class="p-3 bg-primary-subtle text-primary rounded-circle d-inline-flex fs-3 mb-2">
+                        <i class="bi bi-buildings"></i>
+                    </span>
+                    <h3 class="fw-bold mb-1">Create Organization</h3>
+                    <p class="text-muted small">Set up a new isolated tenant workspace</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label small fw-semibold">Organization Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.primary_color.id_for_label }}" class="form-label small fw-semibold">Brand Color</label>
+                        {{ form.primary_color }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.logo.id_for_label }}" class="form-label small fw-semibold">Logo (Optional)</label>
+                        {{ form.logo }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary fw-semibold flex-grow-1">
+                            Create Workspace
+                        </button>
+                        <a href="{% url 'org_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
